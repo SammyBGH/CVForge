@@ -1,0 +1,26 @@
+.form-block {
+  margin-bottom: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: linear-gradient(180deg,#ffffff,#fbfdff);
+}
+.form-block h3 { margin:0 0 10px 0; color:#0f172a; }
+.grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+.form-block input, .form-block textarea {
+  width:100%;
+  padding:10px;
+  border:1px solid #e6eef8;
+  border-radius:8px;
+  outline:none;
+}
+.form-block textarea { resize:vertical; }
+.repeat-block { border: 1px dashed rgba(15,23,42,0.06); padding:10px; margin-bottom:10px; border-radius:8px; }
+.repeat-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.repeat-title { font-weight:600; color:#0f172a; }
+.remove-btn { background:transparent; border:none; color:#ef4444; cursor:pointer; }
+.achievements { margin-top:8px; }
+.ach-item { display:flex; gap:6px; margin-bottom:6px; }
+.small-remove { background:transparent; border:none; color:#ef4444; cursor:pointer; }
+.add-small, .btn-add { margin-top:8px; background:transparent; border:1px dashed rgba(15,23,42,0.06); padding:6px 10px; border-radius:6px; cursor:pointer; }
+.skill-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.extras-group { margin-top:10px; }

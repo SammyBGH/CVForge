@@ -1,0 +1,27 @@
+/* lightweight styling for the NotFound page */
+.notfound-wrap {
+  min-height: calc(100vh - 140px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 30px 20px;
+  background: linear-gradient(180deg,#ffffff,#fbfdff);
+}
+.notfound-card {
+  text-align:center;
+  background: linear-gradient(180deg,#fff,#fbfdff);
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(12,12,12,0.04);
+  border: 1px solid rgba(15,23,42,0.04);
+}
+.notfound-card h2 { margin:0 0 8px 0; color:#0f172a; }
+.notfound-card p { color:#64748b; margin:0 0 12px 0; }
+.back-home {
+  display:inline-block;
+  padding:8px 12px;
+  border-radius:8px;
+  background: linear-gradient(90deg,#7c3aed,#06b6d4);
+  color:white;
+  text-decoration:none;
+}
