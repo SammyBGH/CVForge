@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
-  plugins: [react()],
+  base: '/',
+  plugins: [
+    react(),
+    process.env.ANALYZE === 'true' && visualizer({
+      open: true,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    })
+  ],
   server: {
     port: 3000,
     open: true
@@ -10,17 +20,24 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    chunkSizeWarningLimit: 1600,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
-          vendor: ['html2canvas', 'jspdf', 'react-icons']
+          pdf: ['html2pdf.js', 'jspdf', 'html2canvas'],
+          vendor: ['react-icons', 'react-toastify']
         }
       }
     }
   },
   preview: {
-    port: 3000
+    port: 3000,
+    headers: {
+      'Cache-Control': 'public, max-age=600'
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom']
   }
 })
