@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import "../styles/Builder.css";
 import { CVContext } from "../context/CVContext";
 import { useAuth } from "../context/AuthContext";
@@ -11,12 +11,82 @@ import ExtrasSection from "../components/FormSteps/ExtrasSection";
 import CVPreview from "../components/Preview/CVPreview";
 import { toast } from "react-toastify";
 
+// Paystack configuration
+const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '';
+const PAYMENT_AMOUNT = 3; // 3.00 GHS in kobo (100 kobo = 1 GHS)
+
 export default function Builder() {
   const { cv } = useContext(CVContext);
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [hasPaid, setHasPaid] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const cvPreviewRef = useRef(null);
+
+  // Check if user has already paid (you might want to implement server-side verification)
+  useEffect(() => {
+    // Check localStorage for payment status
+    const paymentStatus = localStorage.getItem('cvBuilder_payment_status');
+    if (paymentStatus === 'paid') {
+      setHasPaid(true);
+    }
+  }, []);
+
+  const handlePayment = () => {
+    if (!user) {
+      toast.error('Please sign in to make a payment');
+      window.location.href = "/login";
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    
+    // Initialize Paystack
+    const paystack = window.PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: user.email || 'user@example.com',
+      amount: PAYMENT_AMOUNT * 100, // Convert to kobo
+      currency: 'GHS',
+      ref: 'CV_' + Math.floor((Math.random() * 1000000000) + 1), // Generate a unique reference
+      onClose: function() {
+        setIsProcessingPayment(false);
+        toast.info('Payment was not completed');
+      },
+      callback: function(response) {
+        // Verify payment on your server
+        verifyPayment(response.reference);
+      }
+    });
+    
+    paystack.openIframe();
+  };
+
+  const verifyPayment = async (reference) => {
+    try {
+      // In a real app, you would verify this on your server
+      // For now, we'll just simulate a successful verification
+      // Replace this with an actual API call to your backend
+      // const response = await fetch('/api/verify-payment', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ reference })
+      // });
+      // const data = await response.json();
+      
+      // For demo purposes, we'll assume payment is successful
+      // In production, verify the payment status from your backend
+      
+      setHasPaid(true);
+      localStorage.setItem('cvBuilder_payment_status', 'paid');
+      toast.success('Payment successful! You can now download your CV.');
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+      toast.error('Payment verification failed. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   const handleSaveCV = async () => {
     if (!user) {
@@ -76,14 +146,23 @@ export default function Builder() {
 
       // Clone the preview node
       const element = cvPreviewRef.current.cloneNode(true);
+      
+      // Hide the template selector in the cloned element
+      const templateSelector = element.querySelector('.template-selector');
+      if (templateSelector) {
+        templateSelector.style.display = 'none';
+      }
 
-      // Apply clean, print-safe styles
-      element.style.padding = "0";
-      element.style.margin = "0";
-      element.style.boxSizing = "border-box";
-      element.style.width = "190mm"; // fit content inside A4 minus margins
-      element.style.background = "#ffffff";
-      element.style.overflow = "visible";
+      // Apply clean, print-safe styles to the CV preview
+      const cvPreview = element.querySelector('.cv-preview');
+      if (cvPreview) {
+        cvPreview.style.padding = "0";
+        cvPreview.style.margin = "0";
+        cvPreview.style.boxSizing = "border-box";
+        cvPreview.style.width = "210mm";
+        cvPreview.style.background = "#ffffff";
+        cvPreview.style.overflow = "visible";
+      }
 
       // Create temporary container
       const tempDiv = document.createElement("div");
@@ -130,10 +209,14 @@ export default function Builder() {
             <div className="preview-actions">
               <button
                 className="btn-primary"
-                onClick={handleDownloadPDF}
-                disabled={isGeneratingPdf}
+                onClick={hasPaid ? handleDownloadPDF : handlePayment}
+                disabled={isGeneratingPdf || isProcessingPayment}
               >
-                {isGeneratingPdf ? "Generating PDF..." : "Download PDF"}
+                {isGeneratingPdf 
+                  ? "Generating PDF..." 
+                  : hasPaid 
+                    ? "Download PDF" 
+                    : `Pay GHS 3.00 to Unlock Download`}
               </button>
 
               <button

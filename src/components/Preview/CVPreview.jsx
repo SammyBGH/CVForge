@@ -1,106 +1,112 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "../../styles/Preview.css";
+import TemplateSelector from "./TemplateSelector";
+import DefaultTemplate from "./templates/DefaultTemplate";
+import ProfessionalTemplate from "./templates/ProfessionalTemplate";
+import CreativeTemplate from "./templates/CreativeTemplate";
 
-export default function CVPreview({ data }) {
-  const { personalInfo = {}, summary, experience = [], education = [], skills = [], extras = {} } = data || {};
-  const awards = (extras.awards || []).filter(Boolean);
-  const certifications = (extras.certifications || []).filter(Boolean);
-  const projects = (extras.projects || []).filter(Boolean);
+const CVPreview = ({ data = {} }) => {
+  const [currentTemplate, setCurrentTemplate] = useState('default');
+  const cvPreviewRef = useRef(null);
+  
+  const handlePrint = () => {
+    // Get the CV preview HTML
+    const printContent = document.getElementById('cv-print-content').innerHTML;
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '', 'width=800,height=900');
+    
+    // Write the print content to the new window
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>CV - Print</title>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+          <style>
+            @page { margin: 0; padding: 0; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .cv-print-page {
+              width: 210mm;
+              min-height: 297mm;
+              padding: 15mm;
+              margin: 0 auto;
+              box-sizing: border-box;
+              position: relative;
+            }
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 0; 
+              }
+              .cv-print-page {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                min-height: 100%;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="cv-print-page">
+            ${printContent}
+          </div>
+          <script>
+            // Close the print window after printing or if user cancels
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                setTimeout(function() { window.close(); }, 100);
+              }, 200);
+              
+              // Also close if user cancels print
+              window.onafterprint = function() {
+                window.close();
+              };
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+  };
+  
+  const renderTemplate = () => {
+    switch (currentTemplate) {
+      case 'professional':
+        return <ProfessionalTemplate data={data} />;
+      case 'creative':
+        return <CreativeTemplate data={data} />;
+      default:
+        return <DefaultTemplate data={data} />;
+    }
+  };
 
   return (
-    <div className="cv-preview">
-      <header className="cv-head">
-        <div className="cv-name">{personalInfo.name || "Your Name"}</div>
-        <div className="cv-contact">
-          {personalInfo.email || "email@example.com"} • {personalInfo.phone || "+233 ..."} • {personalInfo.location || "City, Country"}
-        </div>
-      </header>
-
-      {summary && (
-        <section className="cv-section">
-          <h4>Professional Summary</h4>
-          <p className="cv-summary">{summary}</p>
-        </section>
-      )}
-
-      <section className="cv-section">
-        <h4>Experience</h4>
-        {experience.map((e, idx) => (
-          <div key={e.id || idx} className="cv-item">
-            <div className="cv-item-head">
-              <strong>{e.title || "Job Title"}</strong>
-              <span className="muted">{(e.startDate || "") + (e.endDate ? ` - ${e.endDate}` : "")}</span>
-            </div>
-            <div className="muted">{[e.company, e.location].filter(Boolean).join(" • ")}</div>
-            {Array.isArray(e.achievements) && e.achievements.filter(Boolean).length > 0 && (
-              <ul>
-                {e.achievements.filter(Boolean).map((a, i) => (
-                  <li key={i}>{a}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </section>
-
-      <section className="cv-section">
-        <h4>Education</h4>
-        {education.map((ed, i) => (
-          <div key={ed.id || i} className="cv-item">
-            <div className="cv-item-head">
-              <strong>{ed.degree || "Degree / Cert"}</strong>
-              <span className="muted">{(ed.startDate || "") + (ed.endDate ? ` - ${ed.endDate}` : "")}</span>
-            </div>
-            <div className="muted">{ed.institution}</div>
-          </div>
-        ))}
-      </section>
-
-      <section className="cv-section">
-        <h4>Skills</h4>
-        <div className="skills-wrap">
-          {skills.filter(Boolean).map((s, i) => (
-            <span key={i} className="skill-pill">{s}</span>
-          ))}
-        </div>
-      </section>
-
-      <section className="cv-section extras-section">
-        {(awards.length > 0 || certifications.length > 0 || projects.length > 0) && (
-          <h4>Additional Information</h4>
-        )}
-
-        {awards.length > 0 && (
-          <div className="extras-block extras-awards">
-            <strong>Awards</strong>
-            <ul className="extras-list">
-              {awards.map((a, i) => <li key={i}>{a}</li>)}
-            </ul>
-          </div>
-        )}
-
-        {certifications.length > 0 && (
-          <div className="extras-block extras-certs">
-            <strong>Certifications</strong>
-            <ul className="extras-list">
-              {certifications.map((c, i) => <li key={i}>{c}</li>)}
-            </ul>
-          </div>
-        )}
-
-        {projects.length > 0 && (
-          <div className="extras-block extras-projects-block">
-            <strong>Projects</strong>
-            <div className="extras-projects">
-              {projects.map((p, i) => (
-                <div key={i} className="project-item">
-                  {p}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
+    <div className="cv-preview-container">
+      <div className="preview-controls">
+        <TemplateSelector 
+          activeTemplate={currentTemplate}
+          onTemplateChange={setCurrentTemplate}
+        />
+      </div>
+      
+      <div 
+        id="cv-print-content"
+        ref={cvPreviewRef}
+        className={`cv-preview ${currentTemplate}-template`}
+      >
+        {renderTemplate()}
+      </div>
     </div>
   );
-}
+};
+
+export default CVPreview;
