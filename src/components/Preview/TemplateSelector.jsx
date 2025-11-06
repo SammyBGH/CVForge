@@ -3,7 +3,7 @@ import { FaFileAlt, FaFileSignature, FaFileContract } from 'react-icons/fa';
 
 const TemplateSelector = ({ activeTemplate, onTemplateChange }) => {
   const templates = [
-    { id: 'default', label: 'Default', icon: <FaFileAlt /> },
+    { id: 'default', label: 'Modern', icon: <FaFileAlt /> },
     { id: 'professional', label: 'Pro', icon: <FaFileSignature /> },
     { id: 'creative', label: 'Creative', icon: <FaFileContract /> }
   ];
