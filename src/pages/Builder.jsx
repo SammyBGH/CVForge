@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 
 // Paystack configuration
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '';
-const PAYMENT_AMOUNT = 3; // 3.00 GHS in kobo (100 kobo = 1 GHS)
+const PAYMENT_AMOUNT = 10; // 3.00 GHS in kobo (100 kobo = 1 GHS)
 
 export default function Builder() {
   const { cv } = useContext(CVContext);
