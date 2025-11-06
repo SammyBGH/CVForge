@@ -216,7 +216,7 @@ export default function Builder() {
                   ? "Generating PDF..." 
                   : hasPaid 
                     ? "Download PDF" 
-                    : `Pay GHS 3.00 to Unlock Download`}
+                    : `Pay GHS 10.00 to Unlock Download`}
               </button>
 
               <button
