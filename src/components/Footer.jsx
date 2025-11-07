@@ -42,7 +42,7 @@ export default function Footer() {
           <h3>CVForge</h3>
           <p>Create professional CVs in minutes with our easy-to-use builder.</p>
           <div className="social-links">
-            <a href="https://github.com/SammyBGH" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
               <GithubIcon />
             </a>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
